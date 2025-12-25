@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AMAR BOX CRICKET </title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top-bar">
+    <h1>AMAR BOX CRICKET 🏏</h1>
+    <a href="owner-login.html" class="owner-link">Owner Login</a>
+  </header>
+
+  <div class="pitch-line"></div>
+
+  <!-- Animated cricket ball -->
+  <div class="cricket-ball"></div>
+
+  <main class="grid">
+    <!-- AVAILABILITY SECTION -->
+    <section class="card">
+      <h2>Check Availability</h2>
+      <label>Date:
+        <select id="availDateSelect"></select>
+      </label>
+      <button id="checkAvailBtn">Check Availability</button>
+
+      <h3>Available Slots</h3>
+      <p class="info">Free 1-hour slots for the selected date:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Start</th>
+            <th>End</th>
+          </tr>
+        </thead>
+        <tbody id="availTableBody"></tbody>
+      </table>
+    </section>
+
+    <!-- BOOKING SECTION -->
+    <section class="card">
+      <h2>Book a Slot</h2>
+      <label>Name:
+        <input type="text" id="customerName" />
+      </label>
+      <label>Phone:
+        <input type="text" id="phone" />
+      </label>
+      <label>Email:
+        <input type="email" id="email" />
+      </label>
+
+      <label>Date:
+        <select id="bookDateSelect"></select>
+      </label>
+
+      <label>Start Time:
+         <select id="startTimeSelect"></select>
+      </label>
+
+      <label>End Time:
+        <select id="endTimeSelect"></select>
+      </label>
+
+      <button id="bookBtn">Book Now</button>
+      <p class="info" id="bookingMsg"></p>
+    </section>
+  </main>
+
+  <script src="customer.js"></script>
+</body>
+</html>

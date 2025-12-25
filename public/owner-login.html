@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Login - AMAR BOX CRICKET 🏏</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="cricket-ball"></div>
+  <div class="pitch-line"></div>
+  
+  <div class="auth-container">
+    <div class="logo-container auth-logo">
+      <div class="logo-icon">🏏</div>
+      <h1>Owner Login</h1>
+    </div>
+    <input type="email" id="ownerEmail" placeholder="Owner Email" />
+    <input type="password" id="ownerPassword" placeholder="Password" />
+    <button id="ownerLoginBtn">Login</button>
+    <p class="error" id="loginError"></p>
+    <p style="margin-top: 20px; text-align: center;">
+      <a href="index.html" style="color: var(--primary-green); text-decoration: none; font-weight: 600;">← Back to customer site</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById("ownerLoginBtn").onclick = async () => {
+      const email = document.getElementById("ownerEmail").value;
+      const password = document.getElementById("ownerPassword").value;
+      const err = document.getElementById("loginError");
+      err.textContent = "";
+
+      try {
+        const res = await fetch("/api/owner/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          err.textContent = data.error || "Login failed";
+        } else {
+          window.location.href = "/owner-dashboard";
+        }
+      } catch (e) {
+        console.error(e);
+        err.textContent = "Network error";
+      }
+    };
+  </script>
+</body>
+</html>

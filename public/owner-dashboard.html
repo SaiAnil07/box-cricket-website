@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Owner Dashboard - AMAR BOX CRICKET</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="dashboard">
+  <header class="top-bar">
+    <h1>AMAR BOX CRICKET</h1>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <main class="grid">
+
+    <!-- BOOKINGS -->
+    <section class="card">
+      <h2>Bookings</h2>
+
+      <label>Select Date</label>
+      <input type="date" id="filterDate" />
+
+      <button onclick="loadBookings()">Load Bookings</button>
+      <button onclick="downloadBookings()">Download Excel</button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Email</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody id="bookingsTableBody"></tbody>
+      </table>
+    </section>
+
+    <!-- EXPENSES -->
+    <section class="card">
+      <h2>Expenses</h2>
+
+      <label>Item</label>
+      <input id="expItem" />
+
+      <label>Category</label>
+      <input id="expCategory" />
+
+      <label>Amount</label>
+      <input type="number" id="expAmount" />
+
+      <label>Notes</label>
+      <input id="expNotes" />
+
+      <button onclick="addExpense()">Add Expense</button>
+      <button onclick="downloadExpenses()">Download Excel</button>
+
+      <p id="expMsg" class="info"></p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="expensesTableBody"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <script>
+    async function logout() {
+      await fetch("/api/owner/logout", { method: "POST" });
+      window.location.href = "index.html";
+    }
+
+    async function loadBookings() {
+      const date = document.getElementById("filterDate").value;
+      const tbody = document.getElementById("bookingsTableBody");
+      tbody.innerHTML = "";
+
+      const url = date
+        ? `/api/owner/bookings?date=${date}`
+        : "/api/owner/bookings";
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="5">No bookings</td></tr>`;
+        return;
+      }
+
+      data.forEach(b => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${b.Date}</td>
+          <td>${b.StartTime}</td>
+          <td>${b.EndTime}</td>
+          <td>${b.Email}</td>
+          <td>${b.Phone}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    async function addExpense() {
+      const item = expItem.value;
+      const category = expCategory.value;
+      const amount = expAmount.value;
+      const notes = expNotes.value;
+      const msg = expMsg;
+
+      if (!item || !category || !amount) {
+        msg.textContent = "All required fields!";
+        return;
+      }
+
+      const res = await fetch("/api/owner/add-expense", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item, category, amount, notes })
+      });
+
+      msg.textContent = res.ok ? "Expense Added" : "Error adding expense";
+      loadExpenses();
+    }
+
+    async function loadExpenses() {
+      const tbody = document.getElementById("expensesTableBody");
+      tbody.innerHTML = "";
+
+      const res = await fetch("/api/owner/expenses");
+      const data = await res.json();
+
+      data.forEach(e => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${e.Item}</td>
+          <td>${e.Category}</td>
+          <td>${e.Amount}</td>
+          <td>${e.Notes}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function downloadBookings() {
+      window.location.href = "/download/bookings";
+    }
+
+    function downloadExpenses() {
+      window.location.href = "/download/expenses";
+    }
+
+    loadBookings();
+    loadExpenses();
+  </script>
+</body>
+</html>

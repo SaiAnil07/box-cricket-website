@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Check Availability</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2 style="text-align:center;">Slot Availability</h2>
+  <input type="date" id="date" />
+  <button onclick="check()">Check</button>
+  <pre id="out"></pre>
+
+<script>
+async function check() {
+  const d = date.value;
+  const res = await fetch(`/api/availability?date=${d}`);
+  const data = await res.json();
+  out.textContent = JSON.stringify(data.bookedSlots, null, 2);
+}
+</script>
+</body>
+</html>
