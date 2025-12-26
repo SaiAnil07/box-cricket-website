@@ -26,6 +26,12 @@ app.use(
 
 app.use(express.static(path.join(__dirname, "public")));
 
+function yyyyMMddToDdMmYyyy(dateStr) {
+  const [y, m, d] = dateStr.split("-");
+  return `${d}-${m}-${y}`;
+}
+
+
 /* ================= FILE PATHS ================= */
 const DATA_DIR = path.join(__dirname, "data");
 const BOOKINGS_FILE = path.join(DATA_DIR, "bookings.xlsx");
@@ -170,11 +176,22 @@ app.post("/api/owner/logout", (req, res) => {
 
 /* ================= OWNER APIs ================= */
 app.get("/api/owner/bookings", requireOwner, (req, res) => {
-  const date = req.query.date;
-  let bookings = readExcel(BOOKINGS_FILE, "Bookings");
-  if (date) bookings = bookings.filter(b => b.Date === date);
-  res.json(bookings);
+  const { date } = req.query;
+  const bookings = readExcel(BOOKINGS_FILE, "Bookings");
+
+  if (!date) {
+    return res.json(bookings);
+  }
+
+  const formattedDate = yyyyMMddToDdMmYyyy(date);
+
+  const result = bookings.filter(
+    (b) => String(b.Date).trim() === formattedDate
+  );
+
+  res.json(result);
 });
+
 
 app.get("/api/owner/expenses", requireOwner, (req, res) => {
   res.json(readExcel(EXPENSES_FILE, "Expenses"));
