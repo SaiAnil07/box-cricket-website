@@ -58,6 +58,36 @@ function writeExcel(filePath, sheetName, data) {
   XLSX.writeFile(workbook, filePath);
 }
 
+function calculateAmount(startTime, endTime) {
+  const RATE_BEFORE_6 = 400;
+  const RATE_AFTER_6 = 500;
+  const SIX_PM = 18 * 60;
+
+  const toMinutes = (t) => {
+    const [h, m] = t.split(":").map(Number);
+    return h * 60 + m;
+  };
+
+  const start = toMinutes(startTime);
+  const end = toMinutes(endTime);
+
+  let total = 0;
+
+  // Before 6 PM
+  if (start < SIX_PM) {
+    const beforeEnd = Math.min(end, SIX_PM);
+    total += Math.max(0, beforeEnd - start) / 60 * RATE_BEFORE_6;
+  }
+
+  // After 6 PM
+  if (end > SIX_PM) {
+    const afterStart = Math.max(start, SIX_PM);
+    total += Math.max(0, end - afterStart) / 60 * RATE_AFTER_6;
+  }
+
+  return Math.round(total);
+}
+
 /* ================= TIME HELPERS ================= */
 function timeToMinutes(t) {
   const [h, m] = t.split(":").map(Number);
@@ -135,6 +165,9 @@ app.post("/api/book-slot", (req, res) => {
     });
   }
 
+  // ✅ CALCULATE AMOUNT HERE
+  const amount = calculateAmount(startTime, endTime);
+
   const allBookings = readExcel(BOOKINGS_FILE, "Bookings");
 
   allBookings.push({
@@ -145,13 +178,18 @@ app.post("/api/book-slot", (req, res) => {
     Date: date,
     StartTime: startTime,
     EndTime: endTime,
+    Amount: amount,          // ✅ STORED
     CreatedAt: new Date().toISOString(),
   });
 
   writeExcel(BOOKINGS_FILE, "Bookings", allBookings);
 
-  res.json({ message: "Slot booked successfully" });
+  res.json({
+    message: "Slot booked successfully",
+    amount,
+  });
 });
+
 
 /* ================= OWNER LOGIN ================= */
 app.post("/api/owner/login", (req, res) => {
